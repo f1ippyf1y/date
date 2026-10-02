@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Приглашение на свидание</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--g1:#d63a5a;--g2:#a3248f;--g3:#8a2fcf;--glass:rgba(255,255,255,.16);--line:rgba(255,255,255,.32);--ink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0}
+body{background:linear-gradient(170deg,var(--g1),var(--g2) 55%,var(--g3));color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+h1,h2,.num{font-family:"Unbounded","Arial Black",system-ui,sans-serif;font-weight:800}
+.app{position:relative;max-width:420px;height:100%;margin:0 auto}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:14px}
+.screen.on{display:flex;animation:in .5s}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+h1{font-size:22px;line-height:1.25;margin:0}
+.sub{margin:0;font-size:14px;opacity:.9}
+.panel{background:var(--glass);border:1px solid var(--line);border-radius:28px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.btn{border:0;border-radius:999px;font:700 16px system-ui,sans-serif;padding:14px 32px;cursor:pointer}
+.white{background:#fff;color:#c01e5c}
+.ghost{background:var(--glass);color:#fff;border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.dots{display:flex;gap:6px;position:absolute;top:22px}
+.dots i{width:10px;height:10px;border-radius:9px;background:rgba(255,255,255,.4)}
+.dots i.a{width:28px;background:#fff}
+/* scratch */
+#glass{position:relative;width:100%;height:55%;max-height:380px;border-radius:28px;overflow:hidden;background:rgba(255,255,255,.18)}
+#glass .under{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 28px "Unbounded",sans-serif}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;transition:opacity .8s}
+/* cat */
+.cat{width:130px;height:130px;animation:jump 1s ease-in-out infinite}
+.cat.hat{animation:sway 2s ease-in-out infinite}
+@keyframes jump{0%,100%{transform:translateY(0) scaleY(.94)}45%{transform:translateY(-22px) scaleY(1.04)}}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.shadow{width:70px;height:10px;border-radius:50%;background:rgba(0,0,0,.2);animation:sh 1s ease-in-out infinite}
+@keyframes sh{0%,100%{transform:scale(1)}45%{transform:scale(.7);opacity:.5}}
+#ask .panel{padding:22px 18px;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:12px}
+.row{display:flex;gap:16px;align-items:center;justify-content:center;min-height:64px}
+/* inputs */
+.field{width:100%;box-sizing:border-box;background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:15px 16px;color:#fff;font:700 16px system-ui,sans-serif;color-scheme:dark}
+/* tiles */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.tile{background:var(--glass);border:1px solid var(--line);border-radius:22px;height:112px;color:#fff;font:700 14px system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.tile span{font-size:46px}
+.tile.sel{background:rgba(255,255,255,.38);border-color:#fff}
+/* result */
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.cd div{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:10px 2px}
+.cd b{display:block;font:800 22px "Unbounded",sans-serif}
+.cd small{font-size:10px;text-transform:uppercase;opacity:.8}
+.info{width:100%;box-sizing:border-box;display:flex;gap:12px;align-items:center;text-align:left;padding:12px 16px;background:var(--glass);border:1px solid var(--line);border-radius:18px}
+.info em{font-style:normal;font-size:26px}
+.info small{display:block;font-size:11px;text-transform:uppercase;opacity:.8}
+.info b{font-size:16px}
+.fall{position:fixed;top:-40px;font-size:20px;animation:fall linear forwards;pointer-events:none;opacity:.8}
+@keyframes fall{to{transform:translateY(110vh) rotate(300deg)}}
+a.g{color:#fff;font-size:13px;opacity:.9}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="screen on" id="s0">
+  <h1>За этим стеклом — кое-что личное</h1>
+  <p class="sub">Потри дымку пальцем</p>
+  <div id="glass"><div class="under">💌</div><canvas id="cv"></canvas></div>
+</div>
+
+<div class="screen" id="ask">
+  <div class="panel">
+    <div class="cat" data-cat="heart"></div><div class="shadow"></div>
+    <h1>Пойдёшь со мной на свидание? 💌</h1>
+    <div class="row"><button class="btn white" id="yes">Да! 🤩</button><button class="btn ghost" id="no">Нет</button></div>
+  </div>
+</div>
+
+<div class="screen" id="s1">
+  <div class="dots"><i class="a"></i><i></i><i></i></div>
+  <div class="cat hat" data-cat="hat"></div>
+  <h1>Когда тебе удобно? 📅</h1>
+  <input class="field" type="date" id="d">
+  <input class="field" type="time" id="t">
+  <button class="btn white" id="n1" disabled>Жмякай дальше 💜</button>
+</div>
+
+<div class="screen" id="s2">
+  <div class="dots"><i class="a"></i><i class="a"></i><i></i></div>
+  <h1>Чем займёмся? 😋</h1>
+  <p class="sub">Выбирай, что по душе</p>
+  <div class="grid">
+    <div class="tile" data-v="Имправизация"><span>🍕</span>Имправизация</div>
+    <div class="tile" data-v="Релакс у киноэкрана"><span>🎬</span>Релакс у киноэкрана</div>
+    <div class="tile" data-v="Вечер под звездами"><span>🌳</span>Вечер под звездами</div>
+    <div class="tile" data-v="Светский ужин"><span>☕</span>Светский ужин</div>
+  </div>
+  <button class="btn white" id="n2" disabled>Тык 💗</button>
+</div>
+
+<div class="screen" id="s3">
+  <h1>Ура!💛</h1>
+  <p class="sub" id="txt"></p>
+  <div class="cd"><div><b id="cd">0</b><small>дней</small></div><div><b id="ch">0</b><small>часов</small></div><div><b id="cm">0</b><small>минут</small></div><div><b id="cs">0</b><small>секунд</small></div></div>
+  <div class="info"><em>📅</em><div><small>Когда</small><b id="rd"></b></div></div>
+  <div class="info"><em>🕐</em><div><small>Во сколько</small><b id="rt"></b></div></div>
+  <div class="info"><em>🎯</em><div><small>Что</small><b id="rw"></b></div></div>
+  <button class="btn white" id="cal">📆 В календарь</button>
+  <a class="g" id="gc" target="_blank" rel="noopener">или открыть в Google Календаре</a>
+</div>
+
+</div>
+<script>
+var $=function(i){return document.getElementById(i)};
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});$(id).classList.add('on')}
+/* cats */
+var face='<ellipse cx="50" cy="52" rx="34" ry="30" fill="#cfc8c4"/><path d="M20 38L24 14 42 26ZM80 38L76 14 58 26Z" fill="#cfc8c4"/><path d="M26 30L28 20 36 26ZM74 30L72 20 64 26Z" fill="#f2b6c0"/><circle cx="38" cy="52" r="3" fill="#333"/><circle cx="62" cy="52" r="3" fill="#333"/><ellipse cx="30" cy="60" rx="6" ry="4" fill="#f59aa8"/><ellipse cx="70" cy="60" rx="6" ry="4" fill="#f59aa8"/><path d="M47 58h6l-3 3z" fill="#e0707f"/><path d="M44 63q3 3 6 0q3 3 6 0" stroke="#555" stroke-width="1.5" fill="none"/>';
+var heart='<path d="M50 104C30 90 30 76 41 76c5 0 8 3 9 6 1-3 4-6 9-6 11 0 11 14-9 28z" fill="#e8264f"/><ellipse cx="30" cy="88" rx="8" ry="6" fill="#cfc8c4"/><ellipse cx="70" cy="88" rx="8" ry="6" fill="#cfc8c4"/>';
+var hat='<path d="M26 34Q50 -2 74 34Z" fill="#f6d23c"/><rect x="24" y="30" width="52" height="9" rx="4" fill="#f0c020"/><circle cx="50" cy="6" r="7" fill="#fff3b0"/>';
+document.querySelectorAll('[data-cat]').forEach(function(e){
+  var k=e.dataset.cat;
+  e.innerHTML='<svg viewBox="0 0 100 110">'+face+(k==='heart'?heart:hat)+'</svg>';
+});
+/* falling hearts */
+setInterval(function(){
+  var h=document.createElement('div'),e=['💗','🌸','💕','🌷'];
+  h.className='fall';h.textContent=e[Math.floor(Math.random()*4)];
+  h.style.left=Math.random()*100+'vw';h.style.animationDuration=(6+Math.random()*5)+'s';
+  document.body.appendChild(h);setTimeout(function(){h.remove()},11500);
+},900);
+/* frosted glass scratch */
+var cv=$('cv'),cx,done=false,mv=0;
+function initCv(){
+  var r=cv.getBoundingClientRect();cv.width=r.width;cv.height=r.height;cx=cv.getContext('2d');
+  var g=cx.createRadialGradient(r.width/2,r.height/2,10,r.width/2,r.height/2,r.width/1.2);
+  g.addColorStop(0,'rgba(235,245,250,.97)');g.addColorStop(1,'rgba(200,215,225,.9)');
+  cx.fillStyle=g;cx.fillRect(0,0,r.width,r.height);
+  cx.fillStyle='rgba(255,255,255,.8)';
+  for(var i=0;i<90;i++)cx.fillRect(Math.random()*r.width,Math.random()*r.height,1.5,4+Math.random()*5);
+}
+initCv();
+var down=false;
+function erase(e){
+  if(!down||done)return;
+  var r=cv.getBoundingClientRect();
+  cx.globalCompositeOperation='destination-out';cx.beginPath();
+  cx.arc(e.clientX-r.left,e.clientY-r.top,26,0,7);cx.fill();
+  if(++mv%12===0)check();
+}
+function check(){
+  var d=cx.getImageData(0,0,cv.width,cv.height).data,c=0,n=0;
+  for(var i=3;i<d.length;i+=160){n++;if(d[i]<40)c++}
+  if(c/n>.45){done=true;cv.style.opacity=0;setTimeout(function(){show('ask')},700)}
+}
+cv.addEventListener('pointerdown',function(e){down=true;erase(e)});
+addEventListener('pointerup',function(){down=false});
+cv.addEventListener('pointermove',erase);
+/* yes / no */
+var sc=1,tries=0,ph=['Нет','Уверен(а)?','Подумай!','Пожалуйста 🥺','Ну не надо...','Последний шанс!'];
+function dodge(e){
+  e.preventDefault();tries++;sc=Math.min(sc+.2,2.2);
+  $('yes').style.transform='scale('+sc+')';
+  var n=$('no');n.textContent=ph[Math.min(tries,5)];n.style.position='fixed';n.style.zIndex=9;
+  n.style.left=Math.random()*(innerWidth-110)+'px';n.style.top=Math.random()*(innerHeight-60)+'px';
+}
+['mouseenter','touchstart','click'].forEach(function(v){$('no').addEventListener(v,dodge,{passive:false})});
+$('yes').onclick=function(){$('no').style.display='none';show('s1')};
+/* date/time */
+function ok1(){$('n1').disabled=!($('d').value&&$('t').value)}
+$('d').oninput=ok1;$('t').oninput=ok1;
+$('n1').onclick=function(){show('s2')};
+var what='';
+document.querySelectorAll('.tile').forEach(function(t){
+  t.onclick=function(){document.querySelectorAll('.tile').forEach(function(x){x.classList.remove('sel')});t.classList.add('sel');what=t.dataset.v;$('n2').disabled=false}
+});
+/* result */
+var when;
+$('n2').onclick=function(){
+  when=new Date($('d').value+'T'+$('t').value);
+  var ds=when.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  $('rd').textContent=ds;$('rt').textContent=$('t').value;$('rw').textContent=what;
+  $('txt').textContent='Жду тебя '+ds+' в '+$('t').value+'. Нас ждёт: '+what;
+  var p=function(n){return('0'+n).slice(-2)};
+  var f=function(d){return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'T'+p(d.getHours())+p(d.getMinutes())+'00'};
+  var end=new Date(when.getTime()+7200000);
+  $('gc').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Свидание 💛 ('+what+')')+'&dates='+f(when)+'/'+f(end);
+  window._ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Date//RU\r\nBEGIN:VEVENT\r\nUID:'+Date.now()+'@date\r\nDTSTAMP:'+f(new Date())+'\r\nDTSTART:'+f(when)+'\r\nDTEND:'+f(end)+'\r\nSUMMARY:Свидание 💛 ('+what+')\r\nBEGIN:VALARM\r\nTRIGGER:-PT1H\r\nACTION:DISPLAY\r\nDESCRIPTION:Скоро свидание!\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR';
+  show('s3');tick();setInterval(tick,1000);
+};
+function tick(){
+  var s=Math.max(0,Math.floor((when-new Date())/1000));
+  $('cd').textContent=Math.floor(s/86400);$('ch').textContent=Math.floor(s%86400/3600);
+  $('cm').textContent=Math.floor(s%3600/60);$('cs').textContent=s%60;
+}
+$('cal').onclick=function(){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([window._ics],{type:'text/calendar;charset=utf-8'}));
+  a.download='date.ics';document.body.appendChild(a);a.click();a.remove();
+};
+</script>
+</body>
+</html>
